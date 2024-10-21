@@ -1,36 +1,37 @@
-import { browser } from '$app/environment';
-import { derived, get, writable } from 'svelte/store';
-import { settings, updateSetting, } from './settings';
-import { zoomDefault } from '$lib/panzoom';
-import { page } from '$app/stores';
-import { manga, volume } from '$lib/catalog';
+import { browser } from '$app/environment';  // Ensures code only runs in the browser
+import { derived, get, writable } from 'svelte/store';  // Svelte stores for reactivity
+import { settings, updateSetting } from './settings';  // Imports for global settings
+import { zoomDefault } from '$lib/panzoom';  // Zoom utility function
+import { page } from '$app/stores';  // Access current route parameters
+import { manga, volume } from '$lib/catalog';  // Data stores for manga and volumes
+
 
 export type VolumeSettings = {
-  rightToLeft: boolean;
-  singlePageView: boolean;
-  hasCover: boolean;
-}
+  rightToLeft: boolean;     // Whether the manga reads right-to-left
+  singlePageView: boolean;  // Display one page at a time
+  hasCover: boolean;        // Whether the volume has a cover page
+};
 
 export type VolumeSettingsKey = keyof VolumeSettings;
 
-type Progress = Record<string, number> | undefined;
+type Progress = Record<string, number> | undefined;  // Tracks progress per volume
 
 type VolumeData = {
-  progress: number;
-  chars: number;
-  completed: boolean;
-  timeReadInMinutes: number,
-  settings: VolumeSettings;
-}
+  progress: number;         // Current page number
+  chars: number;            // Number of characters read
+  completed: boolean;       // Whether the volume is completed
+  timeReadInMinutes: number;  // Total time spent reading in minutes
+  settings: VolumeSettings; // Individual volume settings
+};
 
 type TotalStats = {
-  completed: number;
-  pagesRead: number;
-  charsRead: number;
-  minutesRead: number;
-}
+  completed: number;  // Number of completed volumes
+  pagesRead: number;  // Total pages read
+  charsRead: number;  // Total characters read
+  minutesRead: number;  // Total reading time in minutes
+};
 
-type Volumes = Record<string, VolumeData>;
+type Volumes = Record<string, VolumeData>;  // Store all volumes by volume ID
 
 
 const stored = browser ? window.localStorage.getItem('volumes') : undefined;
@@ -39,6 +40,8 @@ const initial: Volumes = stored && browser ? JSON.parse(stored) : {};
 export const volumes = writable<Volumes>(initial);
 
 export function initializeVolume(volume: string) {
+  // Initializes a new volume with default settings if it doesn’t exist.
+  // Uses volumeDefaults from global settings
   const volumeDefaults = get(settings).volumeDefaults;
 
   if (!volumeDefaults) {
@@ -104,7 +107,7 @@ export function startCount(volume: string) {
         }
       };
     });
-  }, 60 * 1000)
+  }, 60 * 1000) // Increments every minute
 }
 
 volumes.subscribe((volumes) => {
@@ -150,7 +153,7 @@ export function updateVolumeSetting(volume: string, key: VolumeSettingsKey, valu
       }
     };
   });
-  zoomDefault();
+  zoomDefault(); // Reset zoom after updating settings
 }
 
 export const totalStats = derived([volumes, page], ([$volumes, $page]) => {

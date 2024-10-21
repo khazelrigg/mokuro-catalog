@@ -1,18 +1,20 @@
 <script lang="ts">
-  import { catalog } from '$lib/catalog';
-  import { ListgroupItem } from 'flowbite-svelte';
+  import { catalog } from '$lib/catalog';  // Import the catalog store
+  import { ListgroupItem } from 'flowbite-svelte';  // UI component from flowbite-svelte
 
-  export let id: string;
+  export let id: string;  // ID of the manga passed as a prop
 
+  // Reactive statement to find the manga with the given ID
   $: manga = $catalog?.find((item) => item.id === id)?.manga[0];
 </script>
 
+
 {#if manga}
   <div>
-    <ListgroupItem>
-      <a href={id} class="h-full w-full">
+    <ListgroupItem>  <!-- List item component -->
+      <a href={id} class="h-full w-full">  <!-- Link to manga detail page -->
         <div class="flex justify-between items-center">
-          <p class="font-semibold text-white">{manga.mokuroData.title}</p>
+          <p class="font-semibold text-white">{manga.mokuroData.title}</p>  <!-- Manga title -->
           <img
             src={URL.createObjectURL(Object.values(manga.files)[0])}
             alt="img"
